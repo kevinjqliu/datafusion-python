@@ -33,4 +33,4 @@ jobs:
 
       - name: Run verification script
         shell: bash
-        run: ./dev/release/verify-release-candidate.sh 45.0.0 1
+        run: ./dev/release/verify-release-candidate.sh 44.0.0 1
