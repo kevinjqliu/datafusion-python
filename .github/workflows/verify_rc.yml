@@ -33,6 +33,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+
       - name: Run verification script
         shell: bash
         run: ./dev/release/verify-release-candidate.sh 44.0.0 1
