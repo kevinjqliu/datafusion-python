@@ -226,6 +226,21 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Debug host and Docker resources (pre-build)
+        if: inputs.build_mode == 'release'
+        run: |
+          set -x
+          uname -a
+          nproc
+          free -h
+          swapon --show || true
+          ulimit -a
+          df -h
+          docker version
+          docker info
+          docker system df
+          docker ps -a
+
       - name: Build (release mode)
         uses: PyO3/maturin-action@v1
         if: inputs.build_mode == 'release'
@@ -250,6 +265,16 @@ jobs:
         with:
           name: dist-manylinux-aarch64
           path: dist/*
+
+      - name: Debug OOM signals (post-build)
+        if: always() && inputs.build_mode == 'release'
+        run: |
+          set +e
+          docker ps -a
+          docker system df
+          docker stats --no-stream
+          sudo dmesg -T | grep -Ei 'out of memory|killed process|oom-killer|oom' | tail -n 100
+          echo "debug step complete"
 
   # ============================================
   # Build - macOS arm64 / Windows
