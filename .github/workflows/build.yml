@@ -234,6 +234,7 @@ jobs:
           manylinux: "2_28"
           args: --release --strip --features protoc,substrait --out dist
           rustup-components: rust-std
+          before-script-linux: yum install -y clang mold
 
       - name: Build (debug mode)
         uses: PyO3/maturin-action@v1
@@ -243,6 +244,7 @@ jobs:
           manylinux: "2_28"
           args: --features protoc,substrait --out dist
           rustup-components: rust-std
+          before-script-linux: yum install -y clang mold
 
       - name: Archive wheels
         uses: actions/upload-artifact@v6
