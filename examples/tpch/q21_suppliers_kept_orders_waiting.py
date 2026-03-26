@@ -77,18 +77,17 @@ df = df.with_column(
 # arrays with size one. That combination will give us orders that had multiple suppliers where only
 # one failed. Use distinct=True in the blow aggregation so we don't get multiple line items from the
 # same supplier reported in either array.
+#
+# Note: we use array_agg with filter to exclude nulls from the failed_suppliers array rather than
+# aggregating nulls and calling array_remove(..., NULL), which returns NULL per SQL standard.
 df = df.aggregate(
     [col("o_orderkey")],
     [
         F.array_agg(col("l_suppkey"), distinct=True).alias("all_suppliers"),
-        F.array_agg(col("failed_supp"), distinct=True).alias("failed_suppliers"),
+        F.array_agg(
+            col("failed_supp"), distinct=True, filter=col("failed_supp").is_not_null()
+        ).alias("failed_suppliers"),
     ],
-)
-
-# Remove the null entries that will get returned by array_agg so we can test to see where we only
-# have a single failed supplier in a multiple supplier order
-df = df.with_column(
-    "failed_suppliers", F.array_remove(col("failed_suppliers"), lit(None))
 )
 
 # This is the check described above which will identify single failed supplier in a multiple
